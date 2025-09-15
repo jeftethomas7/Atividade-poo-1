@@ -1,76 +1,4 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Projeto Java — Visualização estilo VSCode</title>
-  <style>
-    :root{
-      --bg:#1e1e1e; --panel:#252526; --accent:#007acc; --fg:#d4d4d4; --muted:#9a9a9a;
-      --gutter:#2a2a2a; --sel:#264f78;
-    }
-    *{box-sizing:border-box}
-    body{margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; background:var(--bg); color:var(--fg);}
-    .window{display:grid;grid-template-columns:220px 1fr; height:100vh}
-    .sidebar{background:var(--panel); padding:12px; border-right:1px solid #111;}
-    .title{font-weight:600;margin-bottom:8px}
-    .file{padding:8px 10px;border-radius:6px;color:var(--fg);cursor:pointer;margin-bottom:6px}
-    .file:hover{background:#2b2b2b}
-    .file.active{background:var(--sel); color:white}
-    .editor{display:flex;flex-direction:column}
-    .editor-header{height:48px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);display:flex;align-items:center;padding:0 12px;border-bottom:1px solid #111}
-    .editor-header .filename{font-weight:600}
-    .code-area{overflow:auto;padding:18px;height:calc(100vh - 48px)}
-    pre{background:transparent;margin:0;font-family: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace; font-size:13px; line-height:1.45; white-space:pre}
-
-    /* Gutter / line numbers */
-    .code{display:grid;grid-template-columns:54px 1fr}
-    .gutter{background:var(--gutter); padding:12px 8px 12px 12px; text-align:right; color:var(--muted); user-select:none}
-    .gutter div{counter-increment:linenumber}
-    .gutter div::before{content:counter(linenumber);display:block;height:18px}
-    .source{padding:12px;border-left:1px solid rgba(255,255,255,0.02)}
-
-    /* simple keyword highlighting (very small subset) */
-    .kw{color:#569CD6;font-weight:600}
-    .type{color:#4EC9B0}
-    .str{color:#CE9178}
-    .comment{color:#6A9955}
-    .method{color:#DCDCAA}
-
-    .controls{margin-left:auto;color:var(--muted)}
-    .hint{font-size:12px;color:var(--muted);margin-top:6px}
-
-    @media (max-width:700px){.window{grid-template-columns:1fr} .sidebar{display:none}}
-  </style>
-</head>
-<body>
-  <div class="window">
-    <div class="sidebar">
-      <div class="title">Explorer</div>
-      <div id="file-1" class="file active" onclick="openFile(1)">Animal.java</div>
-      <div id="file-2" class="file" onclick="openFile(2)">Cachorro.java</div>
-      <div id="file-3" class="file" onclick="openFile(3)">Passaro.java</div>
-      <div id="file-4" class="file" onclick="openFile(4)">Main.java</div>
-      <div class="hint">Clique nos arquivos para alternar. Este HTML simula uma visualização como se você estivesse no VSCode.</div>
-    </div>
-
-    <div class="editor">
-      <div class="editor-header">
-        <div class="filename" id="filename">Animal.java</div>
-        <div class="controls">Java • UTF-8</div>
-      </div>
-
-      <div class="code-area">
-        <div id="content"></div>
-      </div>
-    </div>
-  </div>
-
-<script>
-const files = {
-  1: {
-    name: 'Animal.java',
-    code: `class Animal {
+class Animal {
     String nome;
     String raca; 
 
@@ -82,11 +10,9 @@ const files = {
     public void comer() {
         System.out.println(nome + " está comendo.");
     }
-}`
-  },
-  2: {
-    name: 'Cachorro.java',
-    code: `class Cachorro extends Animal {
+}
+
+class Cachorro extends Animal {
     public Cachorro(String nome, String raca) {
         super(nome, raca);
     }
@@ -98,14 +24,11 @@ const files = {
     public void andar() {
         System.out.println(nome + " está andando.");
     }
-}`
-  },
-  3: {
-    name: 'Passaro.java',
-    code: `class Passaro extends Animal {
+}
+
+class Passaro extends Animal {
     public Passaro(String nome, String raca) {
-        super(nome, raca);
-    }
+        super(nome, raca); 
 
     public void cantar() {
         System.out.println(nome + " está cantando: Piu piu!");
@@ -114,11 +37,9 @@ const files = {
     public void voar() {
         System.out.println(nome + " está voando.");
     }
-}`
-  },
-  4: {
-    name: 'Main.java',
-    code: `public class Main {
+}
+
+public class Main {
     public static void main(String[] args) {
         Cachorro meuCachorro = new Cachorro("Rex", "Labrador");
         Passaro meuPassaro = new Passaro("Luna", "Canário");
@@ -133,31 +54,4 @@ const files = {
         meuPassaro.cantar();
         meuPassaro.voar();
     }
-}`
-  }
 }
-
-function escapeHtml(s){
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function withLineNumbers(code){
-  const lines = code.split('\n');
-  const gutter = lines.map(()=>'<div></div>').join('');
-  const source = lines.map(l=>`<div>${escapeHtml(l)}</div>`).join('');
-  return `<div class="code"><div class="gutter">${gutter}</div><div class="source"><pre>${source}</pre></div></div>`;
-}
-
-function openFile(id){
-  for(let i=1;i<=4;i++){
-    document.getElementById('file-'+i).classList.toggle('active', i===id);
-  }
-  const f = files[id];
-  document.getElementById('filename').textContent = f.name;
-  document.getElementById('content').innerHTML = withLineNumbers(f.code);
-}
-
-openFile(1);
-</script>
-</body>
-</html>
